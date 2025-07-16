@@ -41,3 +41,42 @@
 ## 许可证
 
 [MIT © 2020-present, pure-admin](./LICENSE)
+
+1. 阿里图标使用
+
+1) import "./assets/iconfont-business/iconfont.js";
+   import "./assets/iconfont-business/iconfont.css";
+
+useRenderIcon
+前缀规则：使用 useRenderIcon 时，需要加上 IF- 前缀
+<template>
+<el-button :icon="useRenderIcon('IF-jicon-release')">
+发布
+</el-button>
+
+  <el-button :icon="useRenderIcon('IF-jicon-ruanjian')">
+    软件
+  </el-button>
+</template>
+<template>
+  <el-button
+    :icon="useRenderIcon('IF-jicon-release', {
+      color: '#409eff',
+      fontSize: '18px'
+    })"
+  >
+    发布
+  </el-button>
+</template>
+
+<template>
+  <i class="iconfont jicon-release"></i>
+  <i class="iconfont jicon-ruanjian"></i>
+  <i class="iconfont jicon-qichepinpai"></i>
+</template>
+
+<template>
+  <svg class="icon-svg" aria-hidden="true">
+    <use xlink:href="#jicon-release"></use>
+  </svg>
+</template>

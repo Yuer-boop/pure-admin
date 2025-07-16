@@ -21,6 +21,9 @@ import "element-plus/dist/index.css";
 // 导入字体图标
 import "./assets/iconfont/iconfont.js";
 import "./assets/iconfont/iconfont.css";
+// 导入字体图标 （本地阿里云矢量图标）
+import "./assets/iconfont-business/iconfont.js";
+import "./assets/iconfont-business/iconfont.css";
 
 const app = createApp(App);
 

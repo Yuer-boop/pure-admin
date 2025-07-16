@@ -27,6 +27,7 @@ export default {
     "selector-class-pattern": null,
     "no-descending-specificity": null,
     "scss/dollar-variable-pattern": null,
+    "no-empty-source": null, //允许空的样式块
     "selector-pseudo-class-no-unknown": [
       true,
       {
