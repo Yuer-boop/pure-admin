@@ -16,7 +16,8 @@ export const getAsyncRoutes = () => {
         meta: {
           title: "产品管理",
           icon: "ant-design:product-outlined",
-          menuType: 0
+          menuType: 0,
+          roles: ["productManager", "admin"] //todo 角色权限包含才展示页面
         },
         component: "",
         children: [
