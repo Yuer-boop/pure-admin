@@ -125,4 +125,8 @@ getList();
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.product_stacks_page {
+  background-color: #f5f5f5;
+}
+</style>
