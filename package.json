@@ -61,6 +61,7 @@
     "echarts": "^5.6.0",
     "element-plus": "^2.9.8",
     "html2canvas": "^1.4.1",
+    "html2canvas-pro": "^1.5.11",
     "js-cookie": "^3.0.5",
     "localforage": "^1.10.0",
     "mitt": "^3.0.1",

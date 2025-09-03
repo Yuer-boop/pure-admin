@@ -1,8 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import PageLayout from "@/layout/pageLayout.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, reactive } from "vue";
 import { ElMessage, ElNotification } from "element-plus";
+import html2canvas from "html2canvas-pro";
 
 defineOptions({
   name: "WeChatMockup"
@@ -29,32 +30,32 @@ interface PhoneStatus {
 
 // 响应式数据
 const chatMessages = ref<ChatMessage[]>([
-  {
-    id: "1",
-    type: "file",
-    content: "",
-    sender: "other",
-    time: "18:42",
-    date: "昨天",
-    fileName: "合同.docx",
-    fileSize: "19KB"
-  },
-  {
-    id: "2",
-    type: "text",
-    content: "起来没呢",
-    sender: "self",
-    time: "09:09",
-    date: "今天"
-  },
-  {
-    id: "3",
-    type: "text",
-    content: "快把我枕头洗了哈哈哈",
-    sender: "self",
-    time: "09:09",
-    date: "今天"
-  }
+  // {
+  //   id: "1",
+  //   type: "file",
+  //   content: "",
+  //   sender: "other",
+  //   time: "18:42",
+  //   date: "昨天",
+  //   fileName: "合同.docx",
+  //   fileSize: "19KB"
+  // },
+  // {
+  //   id: "2",
+  //   type: "text",
+  //   content: "起来没呢",
+  //   sender: "self",
+  //   time: "09:09",
+  //   date: "今天"
+  // },
+  // {
+  //   id: "3",
+  //   type: "text",
+  //   content: "快把我枕头洗了哈哈哈",
+  //   sender: "self",
+  //   time: "09:09",
+  //   date: "今天"
+  // }
 ]);
 
 const phoneStatus = reactive<PhoneStatus>({
@@ -80,6 +81,10 @@ const editForm = reactive({
 
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
+
+// 自己和对方头像
+const selfAvatar = ref<string>("/src/assets/user.jpg"); // 默认自己头像
+const otherAvatar = ref<string>("/src/assets/user.jpg"); // 默认对方头像
 
 // 格式化当前时间
 const getCurrentTime = () => {
@@ -134,6 +139,19 @@ const deleteMessage = (id: string) => {
   }
 };
 
+// 头像上传处理
+function handleAvatarChange(e: Event, type: "self" | "other") {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev: ProgressEvent<FileReader>) => {
+    const result = ev.target?.result as string;
+    if (type === "self") selfAvatar.value = result;
+    else otherAvatar.value = result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // 保存消息
 const saveMessage = () => {
   if (!editForm.content && editForm.type !== "file") {
@@ -146,6 +164,10 @@ const saveMessage = () => {
     return;
   }
 
+  // 根据 sender 赋值头像
+  const avatar =
+    editForm.sender === "self" ? selfAvatar.value : otherAvatar.value;
+
   const messageData: ChatMessage = {
     id: editingMessage.value?.id || Date.now().toString(),
     type: editForm.type,
@@ -153,7 +175,7 @@ const saveMessage = () => {
     sender: editForm.sender,
     time: editForm.time,
     date: editForm.date,
-    avatar: "/src/assets/user.jpg",
+    avatar,
     fileName: editForm.fileName || undefined,
     fileSize: editForm.fileSize || undefined
   };
@@ -202,31 +224,27 @@ const exportAsImage = async () => {
       ElMessage.warning("请先添加一些消息再导出");
       return;
     }
-
-    // 直接提示用户使用截图工具，这是最可靠的方案
-    ElNotification({
-      title: "📱 导出微信聊天记录",
-      message:
-        "请使用截图工具（推荐微信截图 Alt+A，或QQ截图 Ctrl+Alt+A）截取右侧手机界面，保存为图片即可。手机界面已经完全按照真实微信样式设计。",
-      type: "success",
-      duration: 10000,
-      showClose: true
-    });
-
-    // 高亮显示导出区域
     const element = document.getElementById("wechat-export-area");
-    if (element) {
-      element.style.boxShadow = "0 0 20px #07c160";
-      element.style.transition = "box-shadow 0.3s ease";
-
-      // 3秒后移除高亮
-      setTimeout(() => {
-        element.style.boxShadow = "";
-      }, 3000);
+    if (!element) {
+      ElMessage.error("未找到导出区域");
+      return;
     }
+    // 直接使用 html2canvas-pro 截图，无需兼容颜色
+    const canvas = await html2canvas(element, {
+      backgroundColor: "#fff",
+      useCORS: true,
+      logging: false,
+      scrollY: -window.scrollY
+    });
+    const imgData = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = imgData;
+    link.download = `wechat-chat-${Date.now()}.png`;
+    link.click();
+    ElMessage.success("图片已导出");
   } catch (error) {
     console.error("导出失败:", error);
-    ElMessage.error("请使用系统截图工具截取手机界面");
+    ElMessage.error("导出图片失败，请重试");
   }
 };
 
@@ -243,14 +261,14 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
 <template>
   <div class="wechat-mockup-container h-full">
-    <PageLayout pageClass="wechat-mockup-page" :isHeader="false">
+    <PageLayout :isHeader="false" pageClass="wechat-mockup-page">
       <template #content>
         <div class="flex h-full gap-4 p-4">
           <!-- 左侧编辑区域 -->
           <div class="flex-1 bg-white rounded-lg shadow-sm p-6">
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-xl font-semibold text-gray-800">
-                微信聊天记录编辑器
+                猪猪专用🐷-微信聊天记录编辑器
               </h2>
               <div class="flex gap-2">
                 <el-button
@@ -266,6 +284,18 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                   @click="exportAsImage"
                 >
                   导出图片
+                </el-button>
+                <el-button
+                  :icon="useRenderIcon('download')"
+                  type="success"
+                  @click="
+                    () => {
+                      chatMessages = [];
+                      ElMessage.success('聊天记录已清空');
+                    }
+                  "
+                >
+                  清空记录
                 </el-button>
               </div>
             </div>
@@ -302,9 +332,57 @@ const moveMessage = (index: number, direction: "up" | "down") => {
             </el-card>
 
             <!-- 聊天标题设置 -->
-            <el-form-item label="聊天对象" class="mb-6">
+            <el-form-item class="mb-6" label="聊天对象">
               <el-input v-model="chatTitle" placeholder="请输入聊天对象名称" />
             </el-form-item>
+
+            <!-- 自己和对方头像 -->
+            <div class="flex items-center gap-8 mb-6">
+              <div class="flex items-center gap-2">
+                <span>自己头像：</span>
+                <label style="cursor: pointer">
+                  <img
+                    :src="selfAvatar"
+                    alt="自己头像"
+                    style="
+                      width: 40px;
+                      height: 40px;
+                      object-fit: cover;
+                      border: 1px solid #eee;
+                      border-radius: 4px;
+                    "
+                  />
+                  <input
+                    accept="image/*"
+                    style="display: none"
+                    type="file"
+                    @change="e => handleAvatarChange(e, 'self')"
+                  />
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>对方头像：</span>
+                <label style="cursor: pointer">
+                  <img
+                    :src="otherAvatar"
+                    alt="对方头像"
+                    style="
+                      width: 40px;
+                      height: 40px;
+                      object-fit: cover;
+                      border: 1px solid #eee;
+                      border-radius: 4px;
+                    "
+                  />
+                  <input
+                    accept="image/*"
+                    style="display: none"
+                    type="file"
+                    @change="e => handleAvatarChange(e, 'other')"
+                  />
+                </label>
+              </div>
+            </div>
 
             <!-- 消息列表 -->
             <div class="space-y-3">
@@ -320,9 +398,9 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                     viewBox="0 0 20 20"
                   >
                     <path
-                      fill-rule="evenodd"
-                      d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
                       clip-rule="evenodd"
+                      d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                      fill-rule="evenodd"
                     />
                   </svg>
                 </div>
@@ -372,25 +450,29 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                       :icon="useRenderIcon('arrow-up')"
                       size="small"
                       @click="moveMessage(index, 'up')"
-                    />
+                      >上移
+                    </el-button>
                     <el-button
                       :disabled="index === chatMessages.length - 1"
                       :icon="useRenderIcon('arrow-down')"
                       size="small"
                       @click="moveMessage(index, 'down')"
-                    />
+                      >下移
+                    </el-button>
                     <el-button
                       :icon="useRenderIcon('edit')"
                       size="small"
                       type="primary"
                       @click="editMessage(message)"
-                    />
+                      >编辑
+                    </el-button>
                     <el-button
                       :icon="useRenderIcon('delete')"
                       size="small"
                       type="danger"
                       @click="deleteMessage(message.id)"
-                    />
+                      >删除
+                    </el-button>
                   </div>
                 </div>
               </div>
@@ -402,74 +484,13 @@ const moveMessage = (index: number, direction: "up" | "down") => {
             <div class="wechat-phone">
               <!-- 状态栏 -->
               <div class="status-bar">
-                <div class="status-left">
-                  <span class="time">{{ phoneStatus.time }}</span>
-                  <svg
-                    class="crescent-moon"
-                    viewBox="0 0 24 24"
-                    width="14"
-                    height="14"
-                  >
-                    <path
-                      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </div>
-                <div class="status-right">
-                  <!-- 信号 -->
-                  <div class="signal-bars">
-                    <div
-                      v-for="i in 4"
-                      :key="i"
-                      class="signal-bar"
-                      :class="{ active: i <= phoneStatus.signal }"
-                    />
-                  </div>
-                  <span class="network-type">{{ phoneStatus.network }}</span>
-                  <!-- 电池 -->
-                  <div class="battery">
-                    <div
-                      class="battery-level"
-                      :style="{ width: phoneStatus.battery + '%' }"
-                    />
-                    <span class="battery-text">{{ phoneStatus.battery }}</span>
-                  </div>
-                </div>
+                <img alt="" src="./images//未标题-4_02.png" />
               </div>
 
               <!-- 导航栏 -->
               <div class="nav-bar">
-                <div class="nav-left">
-                  <svg
-                    class="back-arrow"
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <path
-                      d="M15 18l-6-6 6-6"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <span class="chat-title">{{ chatTitle }}</span>
-                </div>
-                <div class="nav-right">
-                  <svg
-                    class="more-dots"
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                  >
-                    <circle cx="12" cy="6" r="1" fill="currentColor" />
-                    <circle cx="12" cy="12" r="1" fill="currentColor" />
-                    <circle cx="12" cy="18" r="1" fill="currentColor" />
-                  </svg>
-                </div>
+                <img alt="" src="./images//未标题-4_33302_04.png" />
+                <div>{{ chatTitle }}</div>
               </div>
 
               <!-- 聊天内容区域 -->
@@ -487,13 +508,14 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                 >
                   <!-- 时间显示 -->
                   <div class="message-time">
-                    {{ message.date }} {{ message.time }}
+                    {{ message.date === "今天" ? "" : message.date }}
+                    {{ message.time }}
                   </div>
 
                   <!-- 消息内容 -->
                   <div
-                    class="message-wrapper"
                     :class="{ 'message-self': message.sender === 'self' }"
+                    class="message-wrapper"
                   >
                     <!-- 头像 -->
                     <div class="avatar">
@@ -512,8 +534,8 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                       <!-- 文本消息 -->
                       <div
                         v-if="message.type === 'text'"
-                        class="text-message"
                         :class="{ 'text-self': message.sender === 'self' }"
+                        class="text-message"
                       >
                         {{ message.content }}
                       </div>
@@ -521,44 +543,11 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                       <!-- Word文件消息 -->
                       <div
                         v-else-if="message.type === 'file'"
+                        :class="{ 'file-self': message.sender === 'self' }"
                         class="file-message"
                       >
-                        <div class="file-icon">
-                          <svg viewBox="0 0 24 24" width="24" height="24">
-                            <rect
-                              x="3"
-                              y="2"
-                              width="14"
-                              height="20"
-                              rx="2"
-                              fill="#2B5CE6"
-                            />
-                            <path
-                              d="M8 6h6M8 10h6M8 14h4"
-                              stroke="white"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                            />
-                          </svg>
-                        </div>
-                        <div class="file-info">
-                          <div class="file-name">{{ message.fileName }}</div>
-                          <div class="file-size">{{ message.fileSize }}</div>
-                        </div>
-                        <div class="wechat-pc-badge">
-                          <svg viewBox="0 0 16 16" width="12" height="12">
-                            <circle cx="8" cy="8" r="8" fill="#10AD00" />
-                            <path
-                              d="M6 8l2 2 4-4"
-                              stroke="white"
-                              stroke-width="1.5"
-                              fill="none"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                          <span>微信电脑版</span>
-                        </div>
+                        <div class="file-name">{{ message.fileName }}</div>
+                        <div class="file-size">{{ message.fileSize }}</div>
                       </div>
                     </div>
                   </div>
@@ -567,37 +556,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
               <!-- 底部输入栏 -->
               <div class="input-bar">
-                <div class="input-controls">
-                  <!-- 语音按钮 -->
-                  <div class="voice-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                      <path
-                        d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </div>
-
-                  <!-- 输入框 -->
-                  <div class="message-input">微信</div>
-
-                  <!-- 表情按钮 -->
-                  <div class="emoji-btn">😊</div>
-
-                  <!-- 加号按钮 -->
-                  <div class="plus-btn">+</div>
-                </div>
-
-                <!-- iPhone底部指示条 -->
-                <div class="home-indicator" />
+                <img alt="" src="./images//未标题-4_09.png" />
               </div>
             </div>
           </div>
@@ -712,8 +671,6 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 </template>
 
 <style lang="scss" scoped>
-
-
 /* 响应式设计 */
 @media (width <= 1200px) {
   .wechat-phone-container {
@@ -734,7 +691,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
   .wechat-phone-container {
     width: 100%;
-    max-width: 375px;
+    max-width: 350px;
   }
 }
 
@@ -745,7 +702,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 }
 
 .wechat-mockup-page {
-  background-color: #f5f5f5;
+  background-color: #ededed;
 }
 
 /* 微信手机容器 */
@@ -754,18 +711,15 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 375px;
+  width: 350px;
+  height: 760px;
 }
 
 .wechat-phone {
   position: relative;
-  width: 375px;
-  height: 812px;
-  padding: 8px;
+  width: 350px;
+  height: 760px;
   overflow: hidden;
-  background: #000;
-  border-radius: 36px;
-  box-shadow: 0 20px 40px rgb(0 0 0 / 30%);
 }
 
 /* 状态栏 */
@@ -773,12 +727,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 44px;
-  padding: 0 24px;
-  font-size: 17px;
-  font-weight: 600;
-  color: #000;
-  background: #fff;
+  height: 41px;
 }
 
 .status-left {
@@ -885,13 +834,26 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
 /* 导航栏 */
 .nav-bar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 16px;
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  height: 40px;
+
+  div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 999;
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    transform: translate(-50%, -50%);
+  }
+
+  img {
+    position: relative;
+  }
 }
 
 .nav-left {
@@ -927,7 +889,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 /* 聊天内容区域 */
 .chat-content {
   height: calc(100% - 100px - 70px); // 减去状态栏+导航栏+输入栏
-  padding: 16px;
+  padding: 10px;
   overflow-y: auto;
   background: #ededed;
 }
@@ -1042,7 +1004,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
     &::before {
       position: absolute;
       top: 12px;
-      right: -6px;
+      right: -5px;
       width: 0;
       height: 0;
       content: "";
@@ -1056,12 +1018,12 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 /* 文件消息 */
 .file-message {
   position: relative;
-  width: 220px;
-  padding: 12px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+  width: 224px;
+  height: 80px;
+  background: url("./images/111_08.png") no-repeat center;
+  background-size: cover;
 
+  /* 默认（别人发送）- 左侧尖角 */
   &::before {
     position: absolute;
     top: 16px;
@@ -1074,9 +1036,10 @@ const moveMessage = (index: number, direction: "up" | "down") => {
     border-bottom: 6px solid transparent;
   }
 
-  .message-self & {
+  /* 自己发送 - 右侧尖角 */
+  &.file-self {
     &::before {
-      display: none;
+      display: none; /* 隐藏左侧尖角 */
     }
 
     &::after {
@@ -1090,6 +1053,22 @@ const moveMessage = (index: number, direction: "up" | "down") => {
       border-bottom: 6px solid transparent;
       border-left: 6px solid #fff;
     }
+  }
+
+  .file-name {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: 14px;
+    font-weight: 450;
+    color: #000;
+  }
+
+  .file-size {
+    position: absolute;
+    top: 36px;
+    left: 14px;
+    font-size: 10px;
   }
 }
 
@@ -1146,10 +1125,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
 /* 输入栏 */
 .input-bar {
-  height: 70px;
-  padding: 8px 16px 0;
-  background: #f7f7f7;
-  border-top: 1px solid #d9d9d9;
+  height: 82px;
 }
 
 .input-controls {
