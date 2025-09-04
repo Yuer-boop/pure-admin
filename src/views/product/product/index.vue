@@ -312,6 +312,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                 <el-form-item label="电量">
                   <el-input-number
                     v-model="phoneStatus.battery"
+                    disabled
                     :max="100"
                     :min="0"
                   />
@@ -319,12 +320,13 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                 <el-form-item label="信号强度">
                   <el-input-number
                     v-model="phoneStatus.signal"
+                    disabled
                     :max="4"
                     :min="0"
                   />
                 </el-form-item>
                 <el-form-item label="网络类型">
-                  <el-select v-model="phoneStatus.network">
+                  <el-select v-model="phoneStatus.network" disabled>
                     <el-option label="5G" value="5G" />
                     <el-option label="4G" value="4G" />
                     <el-option label="3G" value="3G" />
@@ -487,8 +489,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
             <div class="wechat-phone">
               <!-- 状态栏 -->
               <div class="status-bar">
-                <!-- todo -->
-                <!-- <div>{{ phoneStatus.time }}</div> -->
+                <div>{{ phoneStatus.time }}</div>
               </div>
 
               <!-- 导航栏 -->
@@ -732,14 +733,15 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   align-items: center;
   justify-content: start;
   height: 41px;
-  background: url("./images//未标题-4_02.png") no-repeat center;
-  background-size: cover;
   color: #090908;
+  background: url("./images/未标题-4_02\ copy.png") no-repeat center;
+  background-size: cover;
+
   div {
-    font-size: 14px;
-    font-weight: 600;
     margin-top: 4px;
     margin-left: 28px;
+    font-size: 15px;
+    font-weight: 600;
     line-height: 14px;
   }
 }
