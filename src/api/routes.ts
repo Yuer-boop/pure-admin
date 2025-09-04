@@ -14,6 +14,7 @@ export const getAsyncRoutes = () => {
         id: 362,
         path: "/wechat/index",
         name: "wechat",
+        component: "",
         meta: {
           title: "聊天模拟",
           icon: "meteor-icons:user",

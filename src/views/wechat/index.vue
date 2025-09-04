@@ -11,6 +11,10 @@ import {
   ArrowUp,
   ArrowDown
 } from "@element-plus/icons-vue";
+import navBarImg from "@/assets/wechat/未标题-4_33302_04.png";
+import statusBarImg from "@/assets/wechat/未标题-4_02 copy.png";
+import inputBarImg from "@/assets/wechat/未标题-4_09.png";
+import fileBubbleImg from "@/assets/wechat/111_08.png";
 
 defineOptions({
   name: "WeChatMockup"
@@ -488,13 +492,19 @@ const moveMessage = (index: number, direction: "up" | "down") => {
           <div id="wechat-export-area" class="wechat-phone-container">
             <div class="wechat-phone">
               <!-- 状态栏 -->
-              <div class="status-bar">
+              <div
+                class="status-bar"
+                :style="{
+                  background: `url(${statusBarImg}) no-repeat center`,
+                  backgroundSize: 'cover'
+                }"
+              >
                 <div>{{ phoneStatus.time }}</div>
               </div>
 
               <!-- 导航栏 -->
               <div class="nav-bar">
-                <img alt="" src="./images//未标题-4_33302_04.png" />
+                <img alt="" :src="navBarImg" />
                 <div>{{ chatTitle }}</div>
               </div>
 
@@ -550,6 +560,10 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                         v-else-if="message.type === 'file'"
                         :class="{ 'file-self': message.sender === 'self' }"
                         class="file-message"
+                        :style="{
+                          background: `url(${fileBubbleImg}) no-repeat center`,
+                          backgroundSize: 'cover'
+                        }"
                       >
                         <div class="file-name">{{ message.fileName }}</div>
                         <div class="file-size">{{ message.fileSize }}</div>
@@ -561,7 +575,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 
               <!-- 底部输入栏 -->
               <div class="input-bar">
-                <img alt="" src="./images//未标题-4_09.png" />
+                <img alt="" :src="inputBarImg" />
               </div>
             </div>
           </div>
@@ -734,7 +748,6 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   justify-content: start;
   height: 41px;
   color: #090908;
-  background: url("./images/未标题-4_02\ copy.png") no-repeat center;
   background-size: cover;
 
   div {
@@ -923,7 +936,6 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   position: relative;
   width: 224px;
   height: 80px;
-  background: url("./images/111_08.png") no-repeat center;
   background-size: cover;
 
   /* 默认（别人发送）- 左侧尖角 */
