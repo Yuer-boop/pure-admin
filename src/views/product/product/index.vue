@@ -1,9 +1,16 @@
 <script lang="ts" setup>
 import PageLayout from "@/layout/pageLayout.vue";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, reactive } from "vue";
-import { ElMessage, ElNotification } from "element-plus";
+import { ElMessage } from "element-plus";
 import html2canvas from "html2canvas-pro";
+import {
+  Plus,
+  Download,
+  Delete,
+  Edit,
+  ArrowUp,
+  ArrowDown
+} from "@element-plus/icons-vue";
 
 defineOptions({
   name: "WeChatMockup"
@@ -268,26 +275,22 @@ const moveMessage = (index: number, direction: "up" | "down") => {
           <div class="flex-1 bg-white rounded-lg shadow-sm p-6">
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-xl font-semibold text-gray-800">
-                猪猪专用🐷-微信聊天记录编辑器
+                聊天记录编辑器
               </h2>
               <div class="flex gap-2">
-                <el-button
-                  :icon="useRenderIcon('plus')"
-                  type="primary"
-                  @click="addMessage"
-                >
+                <el-button :icon="Plus" type="primary" @click="addMessage">
                   添加消息
                 </el-button>
                 <el-button
-                  :icon="useRenderIcon('download')"
+                  :icon="Download"
                   type="success"
                   @click="exportAsImage"
                 >
                   导出图片
                 </el-button>
                 <el-button
-                  :icon="useRenderIcon('download')"
-                  type="success"
+                  :icon="Delete"
+                  type="danger"
                   @click="
                     () => {
                       chatMessages = [];
@@ -447,27 +450,27 @@ const moveMessage = (index: number, direction: "up" | "down") => {
                   <div class="flex gap-1 ml-4">
                     <el-button
                       :disabled="index === 0"
-                      :icon="useRenderIcon('arrow-up')"
+                      :icon="ArrowUp"
                       size="small"
                       @click="moveMessage(index, 'up')"
                       >上移
                     </el-button>
                     <el-button
                       :disabled="index === chatMessages.length - 1"
-                      :icon="useRenderIcon('arrow-down')"
+                      :icon="ArrowDown"
                       size="small"
                       @click="moveMessage(index, 'down')"
                       >下移
                     </el-button>
                     <el-button
-                      :icon="useRenderIcon('edit')"
+                      :icon="Edit"
                       size="small"
                       type="primary"
                       @click="editMessage(message)"
                       >编辑
                     </el-button>
                     <el-button
-                      :icon="useRenderIcon('delete')"
+                      :icon="Delete"
                       size="small"
                       type="danger"
                       @click="deleteMessage(message.id)"
@@ -484,7 +487,8 @@ const moveMessage = (index: number, direction: "up" | "down") => {
             <div class="wechat-phone">
               <!-- 状态栏 -->
               <div class="status-bar">
-                <img alt="" src="./images//未标题-4_02.png" />
+                <!-- todo -->
+                <!-- <div>{{ phoneStatus.time }}</div> -->
               </div>
 
               <!-- 导航栏 -->
@@ -726,14 +730,18 @@ const moveMessage = (index: number, direction: "up" | "down") => {
 .status-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
   height: 41px;
-}
-
-.status-left {
-  display: flex;
-  gap: 6px;
-  align-items: center;
+  background: url("./images//未标题-4_02.png") no-repeat center;
+  background-size: cover;
+  color: #090908;
+  div {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 4px;
+    margin-left: 28px;
+    line-height: 14px;
+  }
 }
 
 .time {
@@ -742,94 +750,11 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   letter-spacing: -0.3px;
 }
 
-.crescent-moon {
-  width: 14px;
-  height: 14px;
-  color: #000;
-}
-
 .status-right {
   display: flex;
   gap: 6px;
   align-items: center;
   font-size: 15px;
-}
-
-/* 信号强度 */
-.signal-bars {
-  display: flex;
-  gap: 2px;
-  align-items: end;
-  margin-right: 2px;
-}
-
-.signal-bar {
-  width: 3px;
-  background: #000;
-  border-radius: 1px;
-  opacity: 0.3;
-
-  &:nth-child(1) {
-    height: 3px;
-  }
-
-  &:nth-child(2) {
-    height: 5px;
-  }
-
-  &:nth-child(3) {
-    height: 7px;
-  }
-
-  &:nth-child(4) {
-    height: 9px;
-  }
-
-  &.active {
-    opacity: 1;
-  }
-}
-
-.network-type {
-  margin-left: 2px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* 电池 */
-.battery {
-  position: relative;
-  width: 27px;
-  height: 13px;
-  margin-left: 4px;
-  border: 1px solid #000;
-  border-radius: 2px;
-
-  &::after {
-    position: absolute;
-    top: 4px;
-    right: -3px;
-    width: 2px;
-    height: 5px;
-    content: "";
-    background: #000;
-    border-radius: 0 1px 1px 0;
-  }
-}
-
-.battery-level {
-  height: 100%;
-  background: #000;
-  border-radius: 1px;
-  transition: width 0.3s ease;
-}
-
-.battery-text {
-  position: absolute;
-  top: -1px;
-  right: 30px;
-  font-size: 15px;
-  font-weight: 600;
 }
 
 /* 导航栏 */
@@ -845,8 +770,8 @@ const moveMessage = (index: number, direction: "up" | "down") => {
     top: 50%;
     left: 50%;
     z-index: 999;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 600;
     color: #000;
     transform: translate(-50%, -50%);
   }
@@ -854,30 +779,6 @@ const moveMessage = (index: number, direction: "up" | "down") => {
   img {
     position: relative;
   }
-}
-
-.nav-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.back-arrow {
-  width: 20px;
-  height: 20px;
-  color: #576b95;
-}
-
-.chat-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #000;
-  letter-spacing: 0;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
 }
 
 .more-dots {
@@ -1045,7 +946,7 @@ const moveMessage = (index: number, direction: "up" | "down") => {
     &::after {
       position: absolute;
       top: 16px;
-      right: -6px;
+      right: -4px;
       width: 0;
       height: 0;
       content: "";
