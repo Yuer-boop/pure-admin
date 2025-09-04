@@ -11,6 +11,18 @@ export const getAsyncRoutes = () => {
   return Promise.resolve({
     data: [
       {
+        id: 362,
+        path: "/wechat/index",
+        name: "wechat",
+        meta: {
+          title: "聊天模拟",
+          icon: "meteor-icons:user",
+          menuType: 0,
+          showLink: true,
+          keepAlive: true
+        }
+      },
+      {
         id: 8,
         path: "/product",
         meta: {
@@ -557,60 +569,6 @@ export const getAsyncRoutes = () => {
                 }
               }
             ]
-          }
-        ]
-      },
-      {
-        id: 362,
-        path: "/examine",
-        meta: {
-          title: "绩效考核",
-          icon: "meteor-icons:arrow-trend-up",
-          menuType: 0
-        },
-        component: "",
-        children: [
-          {
-            id: 363,
-            path: "/examine/performanceAppraisal/index",
-            name: "examinePerfommanceAppraisalPage",
-            component: "",
-            meta: {
-              title: "绩效考核",
-              icon: "tabler:point",
-              activePath: "",
-              showLink: true,
-              keepAlive: true,
-              showParent: true,
-              menuType: 0,
-              auths: [
-                "examinePerformanceAppraisalPage:synchronous",
-                "examinePerformanceAppraisalPage:evaluate",
-                "examinePerformanceAppraisalPage:detail",
-                "examinePerformanceAppraisalPage:remark",
-                "examinePerformanceAppraisalPage:export"
-              ]
-            }
-          },
-          {
-            id: 371,
-            path: "/examine/template/index",
-            name: "examineTemplate",
-            component: "",
-            meta: {
-              title: "绩效模板",
-              icon: "tabler:point",
-              activePath: "",
-              showLink: true,
-              keepAlive: true,
-              showParent: true,
-              menuType: 0,
-              auths: [
-                "examineTemplate:add",
-                "examineTemplate:edit",
-                "examineTemplate:remove"
-              ]
-            }
           }
         ]
       }
