@@ -12,16 +12,47 @@ export const getAsyncRoutes = () => {
     data: [
       {
         id: 362,
-        path: "/wechat/index",
-        name: "wechat",
-        component: "",
+        path: "/tool",
         meta: {
-          title: "聊天模拟",
-          icon: "meteor-icons:user",
-          menuType: 0,
-          showLink: true,
-          keepAlive: true
-        }
+          title: "工具",
+          icon: "meteor-icons:badge-check",
+          menuType: 0
+        },
+        component: "",
+        children: [
+          {
+            id: 363,
+            path: "/tool/wechat/index",
+            name: "wechat",
+            component: "",
+            meta: {
+              title: "聊天模拟",
+              icon: "meteor-icons:user",
+              activePath: "",
+              showLink: true,
+              keepAlive: true,
+              showParent: true,
+              menuType: 0,
+              auths: []
+            }
+          },
+          {
+            id: 371,
+            path: "/tool/pdf/index",
+            name: "pdf",
+            component: "",
+            meta: {
+              title: "pdf压缩",
+              icon: "tabler:point",
+              activePath: "",
+              showLink: true,
+              keepAlive: true,
+              showParent: true,
+              menuType: 0,
+              auths: []
+            }
+          }
+        ]
       },
       {
         id: 8,
