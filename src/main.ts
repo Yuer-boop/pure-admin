@@ -52,13 +52,38 @@ import "tippy.js/themes/light.css";
 import VueTippy from "vue-tippy";
 app.use(VueTippy);
 
-getPlatformConfig(app).then(async config => {
+
   setupStore(app);
   app.use(router);
-  await router.isReady();
-  injectResponsiveStorage(app, config);
+   router.isReady();
+  injectResponsiveStorage(app,  {
+    Version: "6.0.0",
+    Title: "PureAdmin",
+    FixedHeader: true,
+    HiddenSideBar: false,
+    MultiTagsCache: false,
+    KeepAlive: true,
+    Layout: "vertical",
+    Theme: "light",
+    DarkMode: false,
+    OverallStyle: "light",
+    Grey: false,
+    Weak: false,
+    HideTabs: false,
+    HideFooter: false,
+    Stretch: false,
+    SidebarStatus: true,
+    EpThemeColor: "#409EFF",
+    ShowLogo: true,
+    ShowModel: "smart",
+    MenuArrowIconNoTransition: false,
+    CachingAsyncRoutes: false,
+    TooltipEffect: "light",
+    ResponsiveStorageNameSpace: "responsive-",
+    MenuSearchHistory: 6
+  });
   app.use(MotionPlugin).use(useElementPlus).use(Table);
   // .use(PureDescriptions)
   // .use(useEcharts);
   app.mount("#app");
-});
+
