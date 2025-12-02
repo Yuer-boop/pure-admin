@@ -1,0 +1,8 @@
+.page-layout-page {
+  overflow: hidden;
+}
+.page-layout-page .header-wrapper .head-item {
+  align-items: center;
+  display: flex;
+  margin-left: 10px;
+}
