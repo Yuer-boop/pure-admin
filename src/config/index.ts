@@ -31,7 +31,7 @@ export const getPlatformConfig = async (app: App): Promise<undefined> => {
   app.config.globalProperties.$config = getConfig();
   return axios({
     method: "get",
-    url: `/platform-config.json`
+    url: `pure-admin/platform-config.json`
   })
     .then(({ data: config }) => {
       let $config = app.config.globalProperties.$config;
